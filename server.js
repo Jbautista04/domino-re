@@ -5,6 +5,27 @@ const crypto=require('crypto');
 const app=express(); const server=http.createServer(app);
 const io=new Server(server,{cors:{origin:false}});
 app.use(express.static('public'));
+const path = require('path');
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+app.get('/manifest.webmanifest', (req, res) => {
+  res.sendFile(path.join(__dirname, 'manifest.webmanifest'));
+});
+
+app.get('/sw.js', (req, res) => {
+  res.sendFile(path.join(__dirname, 'sw.js'));
+});
+
+app.get('/icon-192.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'icon-192.png'));
+});
+
+app.get('/icon-512.png', (req, res) => {
+  res.sendFile(path.join(__dirname, 'icon-512.png'));
+});
 app.get('/health',(req,res)=>res.json({ok:true,app:'DOMINO RD'}));
 const rooms=new Map();
 const randCode=()=>crypto.randomBytes(3).toString('hex').slice(0,4).toUpperCase();
