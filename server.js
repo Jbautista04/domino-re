@@ -2,36 +2,21 @@ const express=require('express');
 const http=require('http');
 const {Server}=require('socket.io');
 const crypto=require('crypto');
+const path=require('path');
 const app=express(); const server=http.createServer(app);
 const io=new Server(server,{cors:{origin:false}});
-app.use(express.static('public'));
-const path = require('path');
-
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-app.get('/manifest.webmanifest', (req, res) => {
-  res.sendFile(path.join(__dirname, 'manifest.webmanifest'));
-});
-
-app.get('/sw.js', (req, res) => {
-  res.sendFile(path.join(__dirname, 'sw.js'));
-});
-
-app.get('/icon-192.png', (req, res) => {
-  res.sendFile(path.join(__dirname, 'icon-192.png'));
-});
-
-app.get('/icon-512.png', (req, res) => {
-  res.sendFile(path.join(__dirname, 'icon-512.png'));
-});
-app.get('/health',(req,res)=>res.json({ok:true,app:'DOMINO RD'}));
+// Public files live in the repository root for easy GitHub upload.
+app.get('/',(req,res)=>res.sendFile(path.join(__dirname,'index.html')));
+app.get('/manifest.webmanifest',(req,res)=>res.sendFile(path.join(__dirname,'manifest.webmanifest')));
+app.get('/sw.js',(req,res)=>{res.set('Cache-Control','no-cache');res.sendFile(path.join(__dirname,'sw.js'))});
+app.get('/icon-192.png',(req,res)=>res.sendFile(path.join(__dirname,'icon-192.png')));
+app.get('/icon-512.png',(req,res)=>res.sendFile(path.join(__dirname,'icon-512.png')));
+app.get('/health',(req,res)=>res.json({ok:true,app:'DOMINO RD',socketio:true}));
 const rooms=new Map();
 const randCode=()=>crypto.randomBytes(3).toString('hex').slice(0,4).toUpperCase();
 const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 const makeTiles=()=>{const a=[];for(let i=0;i<=6;i++)for(let j=i;j<=6;j++)a.push([i,j]);return shuffle(a)};
-function roomPublic(r,viewer){return {code:r.code,count:r.count,goal:r.goal,variant:r.variant,handNo:r.handNo,scores:r.scores.slice(),board:r.board.map(t=>t.slice()),turn:r.turn,finished:r.finished,status:r.status,players:r.players.map(p=>({id:p.id,name:p.name,tileCount:p.hand.length,hand:p.id===viewer?p.hand.map(t=>t.slice()):[]})),history:r.history.slice(-20)}}
+function roomPublic(r,viewer){return {code:r.code,count:r.count,goal:r.goal,variant:r.variant,stockCount:r.stock.length,handNo:r.handNo,scores:r.scores.slice(),board:r.board.map(t=>t.slice()),turn:r.turn,finished:r.finished,status:r.status,players:r.players.map(p=>({id:p.id,name:p.name,tileCount:p.hand.length,hand:p.id===viewer?p.hand.map(t=>t.slice()):[]})),history:r.history.slice(-20)}}
 function emitState(r){for(const p of r.players){if(p.socketId)io.to(p.socketId).emit('state',roomPublic(r,p.id))}}
 function say(r,msg){r.status=msg;emitState(r)}
 function deal(r,starter=null){
