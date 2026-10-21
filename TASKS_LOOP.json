@@ -1,0 +1,18 @@
+{
+  "project": "DOMINÓ RD 3D ONLINE",
+  "status_values": ["pending", "in_progress", "done", "blocked"],
+  "tasks": [
+    {"id":"LOOP-001","title":"Inspeccionar el proyecto y asegurar el arranque","priority":1,"status":"pending","depends_on":[],"acceptance":["npm install funciona","npm start inicia el servidor","GET /health devuelve ok:true","no se pierden funciones actuales"]},
+    {"id":"LOOP-002","title":"Crear pruebas automatizadas del motor de dominó","priority":1,"status":"pending","depends_on":["LOOP-001"],"acceptance":["28 fichas únicas","reparto correcto","jugadas legales e ilegales comprobadas","turnos, tranca y puntuación comprobados"]},
+    {"id":"LOOP-003","title":"Implementar una mesa 3D real con Three.js","priority":1,"status":"pending","depends_on":["LOOP-001"],"acceptance":["escena WebGL renderizada","mesa con volumen y materiales","fichas 3D con puntos correctos","responde a tamaño de pantalla móvil"]},
+    {"id":"LOOP-004","title":"Integrar fichas 3D con el estado de la partida","priority":1,"status":"pending","depends_on":["LOOP-002","LOOP-003"],"acceptance":["la cadena coincide con el estado del motor","mano del usuario seleccionable","oponentes no revelan sus fichas","los extremos se actualizan correctamente"]},
+    {"id":"LOOP-005","title":"Implementar partida completa contra bots","priority":1,"status":"pending","depends_on":["LOOP-002","LOOP-004"],"acceptance":["se puede jugar hasta terminar una ronda","bots solo usan información visible y su propia mano","se calcula el ganador y los puntos"]},
+    {"id":"LOOP-006","title":"Endurecer salas multijugador y reconexión","priority":1,"status":"pending","depends_on":["LOOP-002"],"acceptance":["acciones validadas en servidor","cada cliente recibe solo su mano","reconexión y desconexión controladas","prueba entre dos clientes cuando el entorno lo permita"]},
+    {"id":"LOOP-007","title":"Añadir chat y mensajes rápidos","priority":2,"status":"pending","depends_on":["LOOP-006"],"acceptance":["mensajes reales por sala","validación de longitud","mensajes rápidos visibles","errores de conexión tratados"]},
+    {"id":"LOOP-008","title":"Añadir PostgreSQL e historial persistente","priority":2,"status":"pending","depends_on":["LOOP-001"],"acceptance":["migraciones documentadas","resultados guardados","variables secretas solo en servidor","funciona sin DB solo si se documenta el modo local"]},
+    {"id":"LOOP-009","title":"Desarrollar perfil y ranking con datos reales","priority":2,"status":"pending","depends_on":["LOOP-008"],"acceptance":["estadísticas derivadas de partidas guardadas","ranking consultado desde backend","estados vacíos claramente indicados"]},
+    {"id":"LOOP-010","title":"Añadir tienda cosmética segura","priority":3,"status":"pending","depends_on":["LOOP-008"],"acceptance":["previsualización de artículos","inventario validado en servidor si se habilitan compras","no hay saldos editables desde cliente"]},
+    {"id":"LOOP-011","title":"Validar PWA y experiencia móvil","priority":1,"status":"pending","depends_on":["LOOP-003","LOOP-004"],"acceptance":["Safari iPhone y Android revisados si hay dispositivos disponibles","áreas seguras respetadas","controles táctiles accesibles","modo degradado si WebGL no está disponible"]},
+    {"id":"LOOP-012","title":"Preparar documentación y despliegue en Render","priority":1,"status":"pending","depends_on":["LOOP-001","LOOP-002","LOOP-003","LOOP-004","LOOP-005","LOOP-006"],"acceptance":["README con pasos de despliegue",".env.example sin secretos","health check probado","limitaciones y pruebas reportadas con honestidad"]}
+  ]
+}
