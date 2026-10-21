@@ -36,7 +36,16 @@ const $=id=>document.getElementById(id);
 let socket=null,room=null,playerId=null,selected=null,game=null,connected=false;
 const qs=new URLSearchParams(location.search); if(qs.get("room")) $("roomcode").value=qs.get("room");
 function getSocket(){if(!socket){socket=io({transports:["websocket","polling"]});socket.on("connect",()=>{$("conn").textContent="CONECTADO";connected=true});socket.on("disconnect",()=>{$("conn").textContent="DESCONECTADO";connected=false});socket.on("errorMsg",m=>alert(m));socket.on("joined",d=>{room=d.room;playerId=d.playerId;$("lobby").classList.add("hidden");$("game").classList.remove("hidden");render(d.state)});socket.on("state",s=>render(s));socket.on("notice",m=>{$("status").textContent=m});socket.on("handResult",r=>{if(r.message) $("status").textContent=r.message;});}return socket}
-function request(event,data){if(!connected){alert("No hay conexión con el servidor. Publica el servidor y vuelve a intentarlo.");return}socket.emit(event,data)}
+function request(event,data){
+  const s=getSocket();
+  if(s.connected){
+    s.emit(event,data);
+  }else{
+    s.once("connect",()=>{
+      s.emit(event,data);
+    });
+  }
+}
 $("create").onclick=()=>{const name=$("name").value.trim()||"Jugador";request("createRoom",{name,count:+$("count").value,goal:+$("goal").value,variant:$("variant").value})};
 $("join").onclick=()=>{const name=$("name").value.trim()||"Jugador",code=$("roomcode").value.trim().toUpperCase();if(!code)return alert("Escribe el código de la mesa.");request("joinRoom",{name,code})};
 $("copy").onclick=async()=>{const url=location.origin+location.pathname+"?room="+room;try{await navigator.clipboard.writeText("Únete a mi mesa de DOMINÓ RD: "+url+" (código "+room+")");$("copy").textContent="¡Copiado!"}catch(e){prompt("Copia este enlace",url)}};
@@ -54,5 +63,6 @@ $("pass").disabled=s.turn!==s.players.findIndex(p=>p.id===playerId)||s.finished;
 $("log").innerHTML=s.history.length?s.history.slice().reverse().map(x=>`<div><b>Mano ${x.handNo}:</b> ${esc(x.message)} · marcador ${x.scores[0]}–${x.scores[1]}</div>`).join(""):"Todavía no hay manos terminadas.";
 }
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+getSocket();
 if("serviceWorker" in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("/sw.js").catch(()=>{}));
 </script></body></html>
